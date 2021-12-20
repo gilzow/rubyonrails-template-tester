@@ -12,8 +12,6 @@ type: "ruby:2.7"
 dependencies:
     nodejs:
         yarn: "*"
-        #nvm: "0.38.0"
-        nodejs: "14.17.6"
 
 # The relationships of the application with services or other applications.
 #
@@ -78,5 +76,5 @@ source:
   operations:
     auto-update:
       command: |
-        #/usr/bin/env scripts/build.sh
+        /usr/bin/env scripts/build.sh
         python scripts/autoupdate.py

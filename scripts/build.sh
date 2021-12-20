@@ -5,9 +5,9 @@ echo "Installing NVM $NVM_VERSION"
 unset NPM_CONFIG_PREFIX
 export NVM_DIR="$PLATFORM_APP_DIR/.nvm"
 # install.sh will automatically install NodeJS based on the presence of $NODE_VERSION
-#curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/$NVM_VERSION/install.sh | bash
-#[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/$NVM_VERSION/install.sh | bash
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+echo "yarn" >> "${NVM_DIR}/default-packages"
 # we install the bundled bundler version and fallback to a default (in env vars above)
 export BUNDLER_VERSION="$(grep -A 1 "BUNDLED WITH" Gemfile.lock | tail -n 1)" || $DEFAULT_BUNDLER_VERSION
 echo "Install bundler $BUNDLER_VERSION"
