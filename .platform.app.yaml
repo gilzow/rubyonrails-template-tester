@@ -107,3 +107,9 @@ web:
 
     commands:
         start: 'bundle exec unicorn -l $SOCKET'
+
+source:
+  operations:
+    auto-update:
+      command: |
+        python scripts/autoupdate.py
