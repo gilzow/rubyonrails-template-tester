@@ -3,13 +3,7 @@ set -e
 
 echo "Installing NVM $NVM_VERSION"
 unset NPM_CONFIG_PREFIX
-if [ -n "${PLATFORM_SOURCE_DIR+x}" ]; then
-  nvmDIR="${PLATFORM_SOURCE_DIR}"
-else
-  nvmDIR="${PLATFORM_APP_DIR}"
-fi
-export NVM_DIR="${nvmDIR}/.nvm"
-
+export NVM_DIR="$PLATFORM_APP_DIR/.nvm"
 # install.sh will automatically install NodeJS based on the presence of $NODE_VERSION
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/$NVM_VERSION/install.sh | bash
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
