@@ -76,5 +76,9 @@ source:
   operations:
     auto-update:
       command: |
-        /usr/bin/env scripts/build.sh
-        python scripts/autoupdate.py
+        #/usr/bin/env scripts/build.sh
+        #python scripts/autoupdate.py
+        echo "Directory contents:"
+        ls -al
+        echo "env vars"
+        printenv
