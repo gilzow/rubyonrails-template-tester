@@ -89,8 +89,8 @@ def main():
 
 		# one more, just need to add the file
 		output = error = None
-		logging.info("Updates are available, adding {}...".format(file))
-		procAdd = subprocess.Popen('git add {}{}'.format(action['path'], action['lock']), shell=True, cwd=appPath,
+		logging.info("Updates are available, adding {0}{1}...".format(action['path'], action['lock']))
+		procAdd = subprocess.Popen('git add {0}{1}'.format(action['path'], action['lock']), shell=True, cwd=appPath,
 								   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		output, error = procAdd.communicate()
 		if 0 != procAdd.returncode:
@@ -98,6 +98,18 @@ def main():
 		else:
 			output = error = None
 			doCommit = True
+
+		procPostAddStatus = subprocess.Popen('git status --porcelain=1', shell=True, cwd=appPath, stdout=subprocess.PIPE,
+									  stderr=subprocess.PIPE)
+		output, error = procStatus.communicate()
+		if 0 != procStatus.returncode:
+			return outputError('git status', error)
+		elif "" == output:
+			# no updates so nothing to add
+			return;
+		else:
+			logging.info("Contents of git status after running git add:")
+			logging.info(output)
 
 	if doCommit:
 		# @todo should this message be configurable?
