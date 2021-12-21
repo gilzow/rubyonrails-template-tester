@@ -78,7 +78,10 @@ source:
       command: |
         #/usr/bin/env scripts/build.sh
         #python scripts/autoupdate.py
+        printf "We are in %s\n" "${PWD}"
         echo "Directory contents:"
         ls -al
+        printf "PSH_APP_DIR is %s and its contents are \n:" "${PLATFORM_APP_DIR}"
+        ls -al "${PLATFORM_APP_DIR}"
         echo "env vars"
         printenv
