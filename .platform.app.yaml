@@ -86,5 +86,9 @@ source:
         curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/$NVM_VERSION/install.sh | bash
         [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
         echo "yarn" >> "${NVM_DIR}/default-packages"
+        # now we have to update bundler...
+        export BUNDLER_VERSION="$(grep -A 1 "BUNDLED WITH" Gemfile.lock | tail -n 1)" || $DEFAULT_BUNDLER_VERSION
+        echo "Install bundler $BUNDLER_VERSION"
+        gem install --no-document bundler -v $BUNDLER_VERSION
         # hey, we can finally run our source operation script!
         python scripts/autoupdate.py
