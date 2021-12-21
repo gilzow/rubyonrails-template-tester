@@ -23,108 +23,98 @@ logging.addLevelName(logging.ERROR, "%s%s%s" % (CWARN, logging.getLevelName(logg
 
 
 def outputError(cmd, output):
-	logging.warning("{}{}{}{} command failed!{}".format(CBOLD, cmd, CRESET, CWARN,CRESET))
-	logging.info("See the following output:")
-	logging.info(output)
-	# @todo exit seems... dirty?
-	# sys.exit("See previous error above")
-	return False
+    logging.warning("{}{}{}{} command failed!{}".format(CBOLD, cmd, CRESET, CWARN, CRESET))
+    logging.info("See the following output:")
+    logging.info(output)
+    # @todo exit seems... dirty?
+    # sys.exit("See previous error above")
+    return False
 
 
 def main():
-	"""
+    """
 
-	:return:
-	"""
-	updaters = {
-		'composer.json': {'command': 'composer update', 'lock': 'composer.lock'},
-		'Pipfile': {'command': 'pipenv update', 'lock': 'Pipfile.lock'},
-		'Gemfile': {'command': 'bundle update --all', 'lock': 'Gemfile.lock'},
-		'go.mod': {'command': 'go get -u all', 'lock': 'go.sum'},
-		'package-lock.json': {'command': 'npm update', 'lock': 'package-lock.json'},
-		'yarn.lock': {'command': 'yarn upgrade', 'lock': 'yarn.lock'}
-	}
+    :return:
+    """
+    updaters = {
+        'composer.json': {'command': 'composer update', 'lock': 'composer.lock'},
+        'Pipfile': {'command': 'pipenv update', 'lock': 'Pipfile.lock'},
+        'Gemfile': {'command': 'bundle update --all', 'lock': 'Gemfile.lock'},
+        'go.mod': {'command': 'go get -u all', 'lock': 'go.sum'},
+        'package-lock.json': {'command': 'npm update', 'lock': 'package-lock.json'},
+        'yarn.lock': {'command': 'yarn upgrade', 'lock': 'yarn.lock'}
+    }
 
-	logging.info("Beginning update process...")
-	# get the path to our app. yes, it's different. in a source op container, we're in a different location
-	appPath = os.getenv('PLATFORM_SOURCE_DIR')
+    logging.info("Beginning update process...")
+    # get the path to our app. yes, it's different. in a source op container, we're in a different location
+    appPath = os.getenv('PLATFORM_SOURCE_DIR')
 
-	# grab the list of files in the app root
-	# @todo for now this only supports single apps. we'll need to build in multiapp support
-	appfiles = [file for file in os.listdir(appPath) if os.path.isfile(file) and file in updaters.keys()]
+    # grab the list of files in the app root
+    # @todo for now this only supports single apps. we'll need to build in multiapp support
+    appfiles = [file for file in os.listdir(appPath) if os.path.isfile(file) and file in updaters.keys()]
 
-	if 1 > len(appfiles):
-		return outputError('Gathering dependency definition file(s)',
-						   "I was unable to locate any dependency definition files")
+    if 1 > len(appfiles):
+        return outputError('Gathering dependency definition file(s)',
+                           "I was unable to locate any dependency definition files")
 
-	actions = {}
-	doCommit = False
+    actions = {}
+    doCommit = False
 
-	for file in appfiles:
-		# @todo just to be safe, we should check to see if updaters has an entry for the file name before we use it
-		actions[file] = updaters[file]
-		# @todo later this needs to be updated to the *relative* directory location where we find the file(s)
-		actions[file]['path'] = './'
+    for file in appfiles:
+        # @todo just to be safe, we should check to see if updaters has an entry for the file name before we use it
+        actions[file] = updaters[file]
+        # @todo later this needs to be updated to the *relative* directory location where we find the file(s)
+        actions[file]['path'] = './'
 
-	for file, action in actions.items():
-		logging.info("Found a {} file...".format(file))
-		logging.info("Running {}".format(action['command']))
-		# run the update process
-		procUpdate = subprocess.Popen(action['command'], shell=True, cwd=action['path'], stdout=subprocess.PIPE,
-									  stderr=subprocess.PIPE)
-		output, error = procUpdate.communicate()
-		if 0 != procUpdate.returncode:
-			return outputError(action['command'], error)
-		# now let's see if we have updates
-		output = error = None
-		logging.info("Seeing if there are any updates to commit.")
-		procStatus = subprocess.Popen('git status --porcelain=1', shell=True, cwd=appPath, stdout=subprocess.PIPE,
-									  stderr=subprocess.PIPE)
-		output, error = procStatus.communicate()
-		if 0 != procStatus.returncode:
-			return outputError('git status', error)
-		elif "" == output:
-			# no updates so nothing to add
-			return;
+    for file, action in actions.items():
+        logging.info("Found a {} file...".format(file))
+        logging.info("Running {}".format(action['command']))
+        # run the update process
+        procUpdate = subprocess.Popen(action['command'], shell=True, cwd=action['path'], stdout=subprocess.PIPE,
+                                      stderr=subprocess.PIPE)
+        output, error = procUpdate.communicate()
+        if 0 != procUpdate.returncode:
+            return outputError(action['command'], error)
+        # now let's see if we have updates
+        output = error = None
+        logging.info("Seeing if there are any updates to commit.")
+        procStatus = subprocess.Popen('git status --porcelain=1', shell=True, cwd=appPath, stdout=subprocess.PIPE,
+                                      stderr=subprocess.PIPE)
+        output, error = procStatus.communicate()
+        if 0 != procStatus.returncode:
+            return outputError('git status', error)
+        elif "" == output:
+            # no updates so nothing to add
+            return
 
-		# one more, just need to add the file
-		output = error = None
-		logging.info("Updates are available, adding {0}{1}...".format(action['path'], action['lock']))
-		procAdd = subprocess.Popen('git add {0}{1}'.format(action['path'], action['lock']), shell=True, cwd=appPath,
-								   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-		output, error = procAdd.communicate()
-		if 0 != procAdd.returncode:
-			return outputError('git add', error)
-		else:
-			output = error = None
-			doCommit = True
+        # one more, just need to add the file
+        output = error = None
+        logging.info("Updates are available, adding {0}{1}...".format(action['path'], action['lock']))
+        procAdd = subprocess.Popen(
+            'git add {0}{1}'.format((action['path'], '')[action['path'] == './'], action['lock']), shell=True,
+            cwd=appPath,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output, error = procAdd.communicate()
+        if 0 != procAdd.returncode:
+            return outputError('git add', error)
+        else:
+            output = error = None
+            doCommit = True
 
-		procPostAddStatus = subprocess.Popen('git status --porcelain=1', shell=True, cwd=appPath, stdout=subprocess.PIPE,
-									  stderr=subprocess.PIPE)
-		output, error = procPostAddStatus.communicate()
-		if 0 != procPostAddStatus.returncode:
-			return outputError('git status', error)
-		elif "" == output:
-			# no updates so nothing to add
-			return;
-		else:
-			logging.info("Contents of git status after running git add:")
-			logging.info(output)
+    if doCommit:
+        # @todo should this message be configurable?
+        message = "Auto dependency updates via source operation"
+        cmd = 'git commit -m "{}"'.format(message)
+        procCommit = subprocess.Popen(cmd, shell=True, cwd=appPath, stdout=subprocess.PIPE,
+                                      stderr=subprocess.PIPE)
+        output, error = procCommit.communicate()
 
-	if doCommit:
-		# @todo should this message be configurable?
-		message = "Auto dependency updates via source operation"
-		cmd = 'git commit -m "{}"'.format(message)
-		procCommit = subprocess.Popen(cmd, shell=True, cwd=appPath, stdout=subprocess.PIPE,
-									  stderr=subprocess.PIPE)
-		output, error = procCommit.communicate()
-
-		if 0 != procCommit.returncode:
-			return outputError('git commit', error)
-		else:
-			logging.info("Changes successfully committed.")
-			return True
+        if 0 != procCommit.returncode:
+            return outputError('git commit', error)
+        else:
+            logging.info("Changes successfully committed.")
+            return True
 
 
 if __name__ == '__main__':
-	main()
+    main()
