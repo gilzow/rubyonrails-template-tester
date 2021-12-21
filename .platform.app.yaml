@@ -98,5 +98,6 @@ source:
         BUNDLE_DEPLOYMENT=0
         bundle config unset frozen
         bundle config set frozen false
+        bundle config set clean false
         #python scripts/autoupdate.py
         bundle update --all
