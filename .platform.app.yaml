@@ -91,5 +91,11 @@ source:
         echo "Install bundler $BUNDLER_VERSION"
         gem install --no-document bundler -v $BUNDLER_VERSION
         # hey, we can finally run our source operation script!
+        # bundle config frozen false
+        # bundle config unset frozen
+        # ok, seriously: how many different ways is there to remove the frozen flag?
+        # bundle config --delete frozen
+        BUNDLE_DEPLOYMENT=0
         bundle config unset frozen
+        bundle config set frozen false
         python scripts/autoupdate.py
