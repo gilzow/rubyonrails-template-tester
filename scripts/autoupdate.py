@@ -101,8 +101,8 @@ def main():
 
 		procPostAddStatus = subprocess.Popen('git status --porcelain=1', shell=True, cwd=appPath, stdout=subprocess.PIPE,
 									  stderr=subprocess.PIPE)
-		output, error = procStatus.communicate()
-		if 0 != procStatus.returncode:
+		output, error = procPostAddStatus.communicate()
+		if 0 != procPostAddStatus.returncode:
 			return outputError('git status', error)
 		elif "" == output:
 			# no updates so nothing to add
