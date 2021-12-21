@@ -91,5 +91,5 @@ source:
         echo "Install bundler $BUNDLER_VERSION"
         gem install --no-document bundler -v $BUNDLER_VERSION
         # hey, we can finally run our source operation script!
-        bundle config frozen false
+        bundle config unset frozen
         python scripts/autoupdate.py
