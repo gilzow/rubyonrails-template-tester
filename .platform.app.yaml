@@ -80,6 +80,9 @@ source:
     auto-update:
       command: |
         /usr/bin/env scripts/build.sh
+        # this sets up nvm / node so we can have the right version for yarn updates
+        unset NPM_CONFIG_PREFIX
         export NVM_DIR="$HOME/.nvm"
         [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+        # hey, we can finally run our source operation script!
         python scripts/autoupdate.py
