@@ -42,7 +42,7 @@ def main():
 		'Gemfile': {'command': 'bundle update --all', 'lock': 'Gemfile.lock'},
 		'go.mod': {'command': 'go get -u all', 'lock': 'go.sum'},
 		'package-lock.json': {'command': 'npm update', 'lock': 'package-lock.json'},
-		'yarn.lock': {'command': 'yarn upgrade', 'lock': ''}
+		'yarn.lock': {'command': 'yarn upgrade', 'lock': 'yarn.lock'}
 	}
 
 	logging.info("Beginning update process...")
