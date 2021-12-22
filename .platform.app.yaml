@@ -79,26 +79,27 @@ source:
   operations:
     auto-update:
       command: |
-        /usr/bin/env scripts/build.sh
+        #/usr/bin/env scripts/build.sh
         # this sets up nvm / node so we can have the right version for yarn updates
         unset NPM_CONFIG_PREFIX
         export NVM_DIR="$PLATFORM_APP_DIR/.nvm"
         # install.sh will automatically install NodeJS based on the presence of $NODE_VERSION
-        #curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/$NVM_VERSION/install.sh | bash
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/$NVM_VERSION/install.sh | bash
         [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
         #echo "yarn" >> "${NVM_DIR}/default-packages"
         # now we have to update bundler...
-        #export BUNDLER_VERSION="$(grep -A 1 "BUNDLED WITH" Gemfile.lock | tail -n 1)" || $DEFAULT_BUNDLER_VERSION
-        #echo "Install bundler $BUNDLER_VERSION"
-        #gem install --no-document bundler -v $BUNDLER_VERSION
+        export BUNDLER_VERSION="$(grep -A 1 "BUNDLED WITH" Gemfile.lock | tail -n 1)" || $DEFAULT_BUNDLER_VERSION
+        echo "Install bundler $BUNDLER_VERSION"
+        gem install --no-document bundler -v $BUNDLER_VERSION
+        bundle install
         # hey, we can finally run our source operation script!
         # bundle config frozen false
         # bundle config unset frozen
         # ok, seriously: how many different ways is there to remove the frozen flag?
         # bundle config --delete frozen
-        BUNDLE_DEPLOYMENT=0
-        bundle config unset frozen
-        bundle config set frozen false
+        ##BUNDLE_DEPLOYMENT=0
+        ##bundle config unset frozen
+        ##bundle config set frozen false
         #bundle config set clean false
         python scripts/autoupdate.py
         #bundle update --all
