@@ -91,6 +91,8 @@ source:
         export BUNDLER_VERSION="$(grep -A 1 "BUNDLED WITH" Gemfile.lock | tail -n 1)" || $DEFAULT_BUNDLER_VERSION
         echo "Install bundler $BUNDLER_VERSION"
         gem install --no-document bundler -v $BUNDLER_VERSION
+        [ -d "$PLATFORM_CACHE_DIR/bundle" ] && \
+          rsync -az --delete "$PLATFORM_CACHE_DIR/bundle/" vendor/bundle/
         bundle install
         # hey, we can finally run our source operation script!
         # bundle config frozen false
